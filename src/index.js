@@ -19,4 +19,4 @@ const cli = meow(`
 			type: 'string',
 			alias: 'e'
 		},}})
-run(cli.input[0], cli.flags.ext?cli.flags.ext.split(','):undefined)
+run(cli.input[0], cli.flags.ext?cli.flags.ext.split(','):['js'])
