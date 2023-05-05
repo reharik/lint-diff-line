@@ -9,7 +9,7 @@ const linter = new ESLint()
 const getChangedFiles = async (ext, commitRange) => {
 	const diff = await exec('git', ['diff', commitRange, '--name-only', '--diff-filter=ACM']);
 	const diffs = diff.stdout.split('\n')
-	const rootDirProcess = await exec('git', ['rev-parse', '--show-toplevel']);;
+	const rootDirProcess = await exec('git', ['rev-parse', '--show-toplevel']);;;
 	const rootDir = rootDirProcess.stdout;
 	const paths = ext ? diffs.filter(x => ext.some(y => x.endsWith(y))):diffs
 	return paths.map(x => path.join(rootDir,x))
