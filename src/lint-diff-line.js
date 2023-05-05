@@ -58,6 +58,9 @@ const reportResults = async (results) => {
 const run = async (commitRange = 'HEAD', ext) => {
 
 	const changedFiles = await getChangedFiles(ext, commitRange);
+	console.log(`************changedFiles************`);
+	console.log(changedFiles);
+	console.log(`********END changedFiles************`);
 	// [{changedLines: lines, filePath: filePath}]
 	const changedFilesLineMap = []
 	for (let i = 0; i < changedFiles.length; i++) {
