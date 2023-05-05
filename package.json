@@ -1,0 +1,51 @@
+{
+  "name": "lint-diff-line",
+  "version": "1.0.0",
+  "description": ":Run eslint only in the changed parts of the code",
+  "source": "src/index.js",
+  "main": "./dist/lint-diff-line.js",
+  "bin": {
+    "lint-diff-line": "dist/lint-diff-line.js"
+  },
+  "scripts": {
+    "build": "parcel build",
+    "lint": "eslint 'src/**/*.js'",
+    "prepublish": "npm run build",
+    "test": "npm run lint",
+    "start": "npm run build && node dist/lint-diff-line.js --ext js,ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reharik/lint-diff-line.git"
+  },
+  "keywords": [
+    "linter",
+    "eslint",
+    "diff",
+    "git"
+  ],
+  "author": "Guilherme Coelho <guilhermervcoelho@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/reharik/lint-diff-line/issues"
+  },
+  "homepage": "https://github.com/reharik/lint-diff-line#readme",
+  "devDependencies": {
+    "@babel/core": "^7.21.8",
+    "babel-loader": "^8.3.0",
+    "babel-plugin-add-module-exports": "0.2.1",
+		"eslint-plugin-import": "^2.27.5",
+    "eslint": "^8.39.0",
+    "eslint-config-pagarme-base": "^3.0.0",
+    "parcel": "^2.8.3"
+  },
+  "dependencies": {
+    "commander": "2.15.1",
+    "execa": "0.10.0",
+    "meow": "^5.0.0",
+    "ramda": "0.25.0"
+  },
+  "peerDependencies": {
+    "eslint": "^8.39.0"
+  }
+}
