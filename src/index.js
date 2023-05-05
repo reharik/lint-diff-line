@@ -1,7 +1,8 @@
-import meow from 'meow'
-import {run} from './lint-diff-line'
+import meow from 'meow';
+import { run } from './lint-diff-line';
 
-const cli = meow(`
+const cli = meow(
+  `
   Usage
     $ lint-diff [<diff-input>]
 
@@ -12,11 +13,14 @@ const cli = meow(`
     $ lint-diff HEAD~1..HEAD
     $ lint-diff master..my-branch
     $ lint-diff master..my-branch --ext js/ts
-`, {
-	flags: {
-
-		ext: {
-			type: 'string',
-			alias: 'e'
-		},}})
-run(cli.input[0], cli.flags.ext?cli.flags.ext.split(','):['js'])
+`,
+  {
+    flags: {
+      ext: {
+        type: 'string',
+        alias: 'e',
+      },
+    },
+  },
+);
+run(cli.input[0], cli.flags.ext ? cli.flags.ext.split(',') : ['.js']);

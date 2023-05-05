@@ -1,18 +1,18 @@
 # lint-diff-line
 
-[![Build Status](https://travis-ci.org/grvcoelho/lint-diff-line.svg?branch=master)](https://travis-ci.org/grvcoelho/lint-diff-line)
-
 Run eslint only in the changed parts of the code
 
 ## Acknowledgment
-This is almost entirely a port of [lint-diff](https://github.com/grvcoelho/lint-diff). That library, at the
-time of the creation of this library has not been updated in 5 years and is using eslit 4.x.
-The library does not seem to be accepting pull requests, so I decided to do it my self. 
-The original is written entirely in rambda and quite nicely so.  Unfortunately,
-my rambda abilities are questionable at best. I was unable to thorouly understand 
-the code nor make updates for the new api versions until I ported it into boring old js.
+This is almost entirely a port of [lint-diff](https://github.com/grvcoelho/lint-diff).
+
+ That library, at the time of the creation of this library has not been updated in 5 years and is using eslit 4.x. The library does not seem to be accepting pull requests, so I decided to do it my self. 
+
+The original is written entirely in rambda and quite nicely so.  Unfortunately, my rambda abilities are questionable at best. I was unable to thorouly understand the code nor make updates for the new api versions until I ported it into boring old js.
+
 I also have not had time to update it into typescript. But I intend eventually to do that.
-The logic and hard work has all been done by grvcoelho. Thank you
+
+The logic and hard work has all been done by grvcoelho. 
+Thank you
 ## Why
 
 [ESLint](https://github.com/eslint/eslint) is a great tool to enforce code
@@ -45,11 +45,12 @@ filter only the errors introduced in the commit range (and nothing more).
   # This will lint the last commit
   $ lint-diff-line HEAD^..HEAD
 
-	# This will lint the differences between your current commit and your origin
-	$ lint-diff-line origin/$(git branch --show-current)..$(git branch --show-current)
+  # This will lint the differences between your current commit and your origin
+  $ lint-diff-line origin/$(git branch --show-current)..$(git branch --show-current)
 
-	# This will lint the last commit but only typescript and json files (for an example)
+  # The default is just `.js` This will lint the last commit but only typescript and json files (for an example)
   $ lint-diff-line HEAD^..HEAD --ext .ts,.json
+
   ```
 
 ## Examples
