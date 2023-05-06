@@ -3,6 +3,7 @@ import path from 'path';
 import { ESLint } from 'eslint';
 
 import { getChangedLinesFromDiff } from './lib/git';
+import minimatch from 'minimatch';
 
 const linter = new ESLint();
 
@@ -14,10 +15,17 @@ const getChangedFiles = async (ext, commitRange) => {
     '--diff-filter=ACM',
   ]);
   const diffs = diff.stdout.split('\n');
+
+  return diffs.filter(x => ext.some(y => x.endsWith(y)));
+};
+
+const filterChangedFilesByGlob = (changedFiles, glob) =>
+  changedFiles.filter(x => glob.some(g => minimatch(x, g)));
+
+const getResolvedPaths = async filteredFiles => {
   const rootDirProcess = await exec('git', ['rev-parse', '--show-toplevel']);
   const rootDir = rootDirProcess.stdout;
-  const paths = diffs.filter(x => ext.some(y => x.endsWith(y)));
-  return paths.map(x => path.join(rootDir, x));
+  return filteredFiles.map(x => path.join(rootDir, x));
 };
 
 const getLineMapForFiles = async (commitRange, changedFiles) => {
@@ -72,13 +80,15 @@ const reportResults = async results => {
   process.exit(results, 1);
 };
 
-const run = async (commitRange = 'HEAD', ext) => {
+const run = async (commitRange, ext, files) => {
   const changedFiles = await getChangedFiles(ext, commitRange);
+  const filteredFiles = filterChangedFilesByGlob(changedFiles, files);
+  const resolvedFiles = await getResolvedPaths(filteredFiles);
   const changedFilesLineMap = await getLineMapForFiles(
     commitRange,
-    changedFiles,
+    resolvedFiles,
   );
-  const lintResults = await applyLinter(changedFiles);
+  const lintResults = await applyLinter(resolvedFiles);
   const filteredLintResults = filterLinterMessages(
     changedFilesLineMap,
     lintResults,

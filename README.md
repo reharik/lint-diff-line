@@ -43,13 +43,16 @@ filter only the errors introduced in the commit range (and nothing more).
 
   ```sh
   # This will lint the last commit
-  $ lint-diff-line HEAD^..HEAD
+  $ lint-diff-line -r HEAD^..HEAD
 
   # This will lint the differences between your current commit and your origin
-  $ lint-diff-line origin/$(git branch --show-current)..$(git branch --show-current)
+  $ lint-diff-line -r origin/$(git branch --show-current)..$(git branch --show-current)
 
   # The default is just `.js` This will lint the last commit but only typescript and json files (for an example)
-  $ lint-diff-line HEAD^..HEAD --ext .ts,.json
+  $ lint-diff-line -r HEAD^..HEAD --ext .ts,.json
+
+  # This will lint .ts and .json files only in the src/fubar folder
+  $ lint-diff-line -r HEAD^..HEAD --ext .ts,.json -f '/src/fubar/**'
 
   ```
 
@@ -58,20 +61,30 @@ filter only the errors introduced in the commit range (and nothing more).
 1. Lint the last 3 commits:
 
   ```sh
-  $ lint-diff-line HEAD~3..HEAD
+  $ lint-diff-line -r HEAD~3..HEAD
   ```
 
 2. Lint local changes that are not yet commited (similar to what [lint-staged](https://github.com/okonet/lint-staged) do):
 
   ```sh
-  $ lint-diff-line HEAD
+  $ lint-diff-line -r HEAD
   # or
   $ lint-diff-line
   ```
 
-3. Lint all commits from a build in [Travis](https://travis-ci.org):
+## Flags
 
-  ```sh
-  # This environment variable will be available in any Travis build
-  $ lint-diff-line $TRAVIS_COMMIT_RANGE
-  ```
+The git commit range e.g. `-r HEAD~1..HEAD`, `-r master..my-branch` etc
+
+	--range -r :default 'HEAD'
+Restict file extenstions e.g. `-e .js,.ts,.jsx,.tsx`
+
+	--ext -e :default '.js'
+
+A glob pattern for which files to lint. Please NOTE the quotes around the pattern e.g. `-f '/frontendApp/src/** backendApp/src/*.ts'`. multiple values can be used space deliniated
+	
+	--files -f :default '**'
+
+## helpful values
+I use this range pattern to lint the files changed since the last time I pushed to the remote.  This works great unless you have not yet pushed to remote (i.e. there is no version 'origin/whatever'), in which case it throws. I don't know quite how to get around that. I welcome ideas.
+`-r origin/$(git branch --show-current)..$(git branch --show-current)`
