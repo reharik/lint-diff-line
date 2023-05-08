@@ -77,7 +77,7 @@ const reportResults = async results => {
   ) {
     process.exit(0);
   }
-  process.exit(results, 1);
+  process.exit(1);
 };
 
 const run = async (commitRange, ext, files) => {
