@@ -1,4 +1,4 @@
-import exec from 'execa';
+import { execSync } from 'child_process';
 import path from 'path';
 import { ESLint } from 'eslint';
 
@@ -7,24 +7,21 @@ import minimatch from 'minimatch';
 
 const linter = new ESLint();
 
-const getChangedFiles = async (ext, commitRange) => {
-  const diff = await exec('git', [
-    'diff',
-    commitRange,
-    '--name-only',
-    '--diff-filter=ACM',
-  ]);
-  const diffs = diff.stdout.split('\n');
-
-  return diffs.filter(x => ext.some(y => x.endsWith(y)));
+const getChangedFiles = async ext => {
+  const file = execSync(
+    `git log -g --no-merges --pretty=format: --name-only --diff-filter=ACM $(git branch --show-current)  | sort | uniq`,
+  ).toString();
+  const files = file.split('\n').filter(Boolean);
+  return files.filter(x => ext.some(y => x.endsWith(y)));
 };
 
 const filterChangedFilesByGlob = (changedFiles, glob) =>
   changedFiles.filter(x => glob.some(g => minimatch(x, g)));
 
 const getResolvedPaths = async filteredFiles => {
-  const rootDirProcess = await exec('git', ['rev-parse', '--show-toplevel']);
-  const rootDir = rootDirProcess.stdout;
+  const rootDir = execSync('git rev-parse --show-toplevel')
+    .toString()
+    .replace('\n', '');
   return filteredFiles.map(x => path.join(rootDir, x));
 };
 
@@ -32,9 +29,11 @@ const getLineMapForFiles = async (commitRange, changedFiles) => {
   const changedFilesLineMap = [];
   for (let i = 0; i < changedFiles.length; i++) {
     const file = changedFiles[i];
-    const diff = await exec('git', ['diff', commitRange, file]);
-    const lines = getChangedLinesFromDiff(diff.stdout);
-    changedFilesLineMap.push({ changedLines: lines, filePath: file });
+    const diff = execSync(`git diff ${commitRange} ${file}`).toString();
+    const lines = getChangedLinesFromDiff(diff);
+    if(lines.length) {
+			changedFilesLineMap.push({ changedLines: lines, filePath: file });
+		}
   }
   return changedFilesLineMap;
 };
@@ -64,7 +63,7 @@ const updateErrorAndWarningCounts = filteredLintResults =>
       .length,
   }));
 
-const applyLinter = async changedFiles => await linter.lintFiles(changedFiles);
+const applyLinter = async changedFiles => await linter.lintFiles(changedFiles.map(x=>x.filePath));
 
 const reportResults = async results => {
   const formatter = await linter.loadFormatter('stylish');
@@ -81,14 +80,14 @@ const reportResults = async results => {
 };
 
 const run = async (commitRange, ext, files) => {
-  const changedFiles = await getChangedFiles(ext, commitRange);
+  const changedFiles = await getChangedFiles(ext);
   const filteredFiles = filterChangedFilesByGlob(changedFiles, files);
   const resolvedFiles = await getResolvedPaths(filteredFiles);
   const changedFilesLineMap = await getLineMapForFiles(
     commitRange,
     resolvedFiles,
   );
-  const lintResults = await applyLinter(resolvedFiles);
+  const lintResults = await applyLinter(changedFilesLineMap);
   const filteredLintResults = filterLinterMessages(
     changedFilesLineMap,
     lintResults,
