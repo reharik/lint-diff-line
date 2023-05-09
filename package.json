@@ -1,6 +1,6 @@
 {
   "name": "lint-diff-line",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": ":Run eslint only in the changed parts of the code",
   "source": "src/index.js",
   "main": "./dist/lint-diff-line.js",
