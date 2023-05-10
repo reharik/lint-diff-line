@@ -31,9 +31,9 @@ const getLineMapForFiles = async (commitRange, changedFiles) => {
     const file = changedFiles[i];
     const diff = execSync(`git diff ${commitRange} ${file}`).toString();
     const lines = getChangedLinesFromDiff(diff);
-    if(lines.length) {
-			changedFilesLineMap.push({ changedLines: lines, filePath: file });
-		}
+    if (lines.length) {
+      changedFilesLineMap.push({ changedLines: lines, filePath: file });
+    }
   }
   return changedFilesLineMap;
 };
@@ -63,11 +63,16 @@ const updateErrorAndWarningCounts = filteredLintResults =>
       .length,
   }));
 
-const applyLinter = async changedFiles => await linter.lintFiles(changedFiles.map(x=>x.filePath));
+const applyLinter = async changedFiles =>
+  await linter.lintFiles(changedFiles.map(x => x.filePath));
 
 const reportResults = async results => {
   const formatter = await linter.loadFormatter('stylish');
-  const formatted = formatter.format(results);
+  let formatted = formatter.format(results);
+  if (!formatted) {
+    formatted =
+      '\x1b[32m 0 problems (0 errors, 0 warnings)\n 0 errors and 0 warnings potentially fixable with the `--fix` option. \x1b[0m';
+  }
   console.log(formatted);
   if (
     results.reduce((acc, x) => {
