@@ -25,17 +25,24 @@ const getResolvedPaths = async filteredFiles => {
   return filteredFiles.map(x => path.join(rootDir, x));
 };
 
-const getLineMapForFiles = async (commitRange, changedFiles) => {
-  const changedFilesLineMap = [];
-  for (let i = 0; i < changedFiles.length; i++) {
-    const file = changedFiles[i];
-    const diff = execSync(`git diff ${commitRange} ${file}`).toString();
-    const lines = getChangedLinesFromDiff(diff);
-    if (lines.length) {
-      changedFilesLineMap.push({ changedLines: lines, filePath: file });
-    }
-  }
-  return changedFilesLineMap;
+const getLineMapForFiles = (commitRange, changedFiles) => {
+	const errPaths = [];
+		const changedFilesLineMap = changedFiles.map(file => {
+    try {
+			const diff = execSync(`git diff ${commitRange} ${file}`).toString();
+			const lines = getChangedLinesFromDiff(diff);
+			if (lines.length) {
+				return { changedLines: lines, filePath: file };
+			}
+		}catch(err) {
+			errPaths.push(file);
+		}
+	}).filter(Boolean);
+  
+	if(errPaths.length) {
+		console.log(`\n\nChanges found that are not in current range.\npaths: ${errPaths.join("\n")} \ncommit range: ${commitRange}\n\n`)
+	}
+	return changedFilesLineMap;
 };
 
 const filterLinterMessages = (changedFileLineMap, linterOutput) =>
