@@ -1,17 +1,19 @@
-import { execSync } from 'child_process';
+import util from 'util';
+import { exec as execCB } from 'child_process';
 import path from 'path';
 import { ESLint } from 'eslint';
 
 import { getChangedLinesFromDiff } from './lib/git';
 import minimatch from 'minimatch';
 
+const exec = util.promisify(execCB);
 const linter = new ESLint();
 
 const getChangedFiles = async ext => {
-  const file = execSync(
+  const file = await exec(
     `git log -g --no-merges --pretty=format: --name-only --diff-filter=ACM $(git branch --show-current)  | sort | uniq`,
-  ).toString();
-  const files = file.split('\n').filter(Boolean);
+  );
+  const files = (file.stdout || '').split('\n').filter(Boolean);
   return files.filter(x => ext.some(y => x.endsWith(y)));
 };
 
@@ -19,30 +21,37 @@ const filterChangedFilesByGlob = (changedFiles, glob) =>
   changedFiles.filter(x => glob.some(g => minimatch(x, g)));
 
 const getResolvedPaths = async filteredFiles => {
-  const rootDir = execSync('git rev-parse --show-toplevel')
-    .toString()
-    .replace('\n', '');
+  const rootDir = (await exec('git rev-parse --show-toplevel')).stdout?.replace(
+    '\n',
+    '',
+  );
   return filteredFiles.map(x => path.join(rootDir, x));
 };
 
-const getLineMapForFiles = (commitRange, changedFiles) => {
-	const errPaths = [];
-		const changedFilesLineMap = changedFiles.map(file => {
+const getLineMapForFiles = async (commitRange, changedFiles) => {
+  const errPaths = [];
+  const changedFilesLineMap = [];
+  for (let i = 0; i < changedFiles.length; i++) {
+    const file = changedFiles[i];
     try {
-			const diff = execSync(`git diff ${commitRange} ${file}`).toString();
-			const lines = getChangedLinesFromDiff(diff);
-			if (lines.length) {
-				return { changedLines: lines, filePath: file };
-			}
-		}catch(err) {
-			errPaths.push(file);
-		}
-	}).filter(Boolean);
-  
-	if(errPaths.length) {
-		console.log(`\n\nChanges found that are not in current range.\npaths: ${errPaths.join("\n")} \ncommit range: ${commitRange}\n\n`)
-	}
-	return changedFilesLineMap;
+      const diff = (await exec(`git diff ${commitRange} ${file}`)).stdout;
+      const lines = getChangedLinesFromDiff(diff);
+      if (lines.length) {
+        changedFilesLineMap.push({ changedLines: lines, filePath: file });
+      }
+    } catch (err) {
+      errPaths.push(file);
+    }
+  }
+
+  if (errPaths.length) {
+    console.log(
+      `\x1b[33m\n\nChanges found that are not in current range.\npaths: ${errPaths.join(
+        '\n',
+      )} \ncommit range: ${commitRange}\n\n\x1b[0m`,
+    );
+  }
+  return changedFilesLineMap;
 };
 
 const filterLinterMessages = (changedFileLineMap, linterOutput) =>
