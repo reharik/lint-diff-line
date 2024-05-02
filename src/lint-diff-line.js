@@ -97,9 +97,12 @@ const updateErrorAndWarningCounts = filteredLintResults =>
 const applyLinter = async changedFiles =>
   await linter.lintFiles(changedFiles.map(x => x.filePath));
 
-const reportResults = async results => {
-  const formatter = await linter.loadFormatter('./src/lib/customFormatter.js');
-  let formatted = formatter.format(results,);
+const reportResults = async (results, fullFiles) => {
+  let formatter = await linter.loadFormatter('./src/lib/newLineCustomFormatter.js');
+	if(fullFiles) {
+		formatter = await linter.loadFormatter('./src/lib/fullFileCustomFormatter.js');
+	}
+  let formatted = formatter.format(results);
   if (!formatted) {
     formatted =
       '\x1b[32m 0 problems (0 errors, 0 warnings)\n 0 errors and 0 warnings potentially fixable with the `--fix` option. \x1b[0m';
@@ -116,7 +119,7 @@ const reportResults = async results => {
 };
 
 const run = async (commitRange, ext, files, fullFiles) => {
-	const changedFiles = await getChangedFiles(ext);
+	const changedFiles = await getChangedFiles(commitRange,ext);
   const filteredFiles = filterChangedFilesByGlob(changedFiles, files);
   const resolvedFiles = await getResolvedPaths(filteredFiles);
   const changedFilesLineMap = await getLineMapForFiles(
@@ -125,10 +128,6 @@ const run = async (commitRange, ext, files, fullFiles) => {
   );
   const lintResults = await applyLinter(changedFilesLineMap);
   let results;
-	console.log(`************lintResults************`);
-	console.log(JSON.stringify(changedFiles, null, 4));
-	console.log(JSON.stringify(lintResults, null, 4));
-	console.log(`********END lintResults************`);
 	if(fullFiles) {
 		results = decorateLinterMessages(changedFilesLineMap, lintResults)
 	} else {
@@ -138,7 +137,7 @@ const run = async (commitRange, ext, files, fullFiles) => {
 		);
 		results = updateErrorAndWarningCounts(filteredLintResults);
 	}
-	await reportResults(results);
+	await reportResults(results,fullFiles);
 };
 
 export { run };
