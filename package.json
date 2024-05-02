@@ -1,6 +1,6 @@
 {
   "name": "lint-diff-line",
-  "version": "1.1.4",
+  "version": "1.2.0",
   "description": ":Run eslint only in the changed parts of the code",
   "source": "src/index.js",
   "main": "./dist/lint-diff-line.js",
@@ -25,7 +25,7 @@
     "diff",
     "git"
   ],
-  "author": "Guilherme Coelho <guilhermervcoelho@gmail.com>",
+  "author": "Raif Harik <harik.raif@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/reharik/lint-diff-line/issues"
