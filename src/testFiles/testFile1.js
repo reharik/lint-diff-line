@@ -10,11 +10,11 @@ import {
   pipe,
   reduce,
   slice,
-  startsWith,
+  startsWithasdf,
 } from 'ramda'
 
 export const mapIndexed = addIndex(map)
-
+asdf
 export const reduceIndexed = addIndex(reduce)
 
 export const firstItemStartsWith = curry((prefix, list) =>

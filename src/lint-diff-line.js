@@ -9,9 +9,9 @@ import minimatch from 'minimatch';
 const exec = util.promisify(execCB);
 const linter = new ESLint();
 
-const getChangedFiles = async ext => {
+const getChangedFiles = async (range, ext) => {
   const file = await exec(
-    `git log -g --no-merges --pretty=format: --name-only --diff-filter=ACM $(git branch --show-current)  | sort | uniq`,
+    `git log --no-merges --pretty=format: --name-only --diff-filter=ACM ${range}  | sort | uniq`,
   );
   const files = (file.stdout || '').split('\n').filter(Boolean);
   return files.filter(x => ext.some(y => x.endsWith(y)));
@@ -126,6 +126,7 @@ const run = async (commitRange, ext, files, fullFiles) => {
   const lintResults = await applyLinter(changedFilesLineMap);
   let results;
 	console.log(`************lintResults************`);
+	console.log(JSON.stringify(changedFiles, null, 4));
 	console.log(JSON.stringify(lintResults, null, 4));
 	console.log(`********END lintResults************`);
 	if(fullFiles) {
