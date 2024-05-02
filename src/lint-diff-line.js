@@ -68,6 +68,21 @@ const filterLinterMessages = (changedFileLineMap, linterOutput) =>
     })
     .filter(Boolean);
 
+
+		const decorateLinterMessages = (changedFileLineMap, linterOutput) =>
+  changedFileLineMap
+    .map(x => {
+      const outputForFile = linterOutput.find(l => l.filePath === x.filePath);
+      if (!outputForFile) {
+        return undefined;
+      }
+      outputForFile.messages = outputForFile.messages.map(m =>
+        x.changedLines.includes(m.line) ? {...m, newLineError: true} : m,
+      );
+      return outputForFile;
+    })
+    .filter(Boolean);
+
 const updateErrorAndWarningCounts = filteredLintResults =>
   filteredLintResults.map(x => ({
     ...x,
@@ -83,8 +98,8 @@ const applyLinter = async changedFiles =>
   await linter.lintFiles(changedFiles.map(x => x.filePath));
 
 const reportResults = async results => {
-  const formatter = await linter.loadFormatter('stylish');
-  let formatted = formatter.format(results);
+  const formatter = await linter.loadFormatter('./src/lib/customFormatter.js');
+  let formatted = formatter.format(results,);
   if (!formatted) {
     formatted =
       '\x1b[32m 0 problems (0 errors, 0 warnings)\n 0 errors and 0 warnings potentially fixable with the `--fix` option. \x1b[0m';
@@ -100,8 +115,8 @@ const reportResults = async results => {
   process.exit(1);
 };
 
-const run = async (commitRange, ext, files) => {
-  const changedFiles = await getChangedFiles(ext);
+const run = async (commitRange, ext, files, fullFiles) => {
+	const changedFiles = await getChangedFiles(ext);
   const filteredFiles = filterChangedFilesByGlob(changedFiles, files);
   const resolvedFiles = await getResolvedPaths(filteredFiles);
   const changedFilesLineMap = await getLineMapForFiles(
@@ -109,12 +124,17 @@ const run = async (commitRange, ext, files) => {
     resolvedFiles,
   );
   const lintResults = await applyLinter(changedFilesLineMap);
-  const filteredLintResults = filterLinterMessages(
-    changedFilesLineMap,
-    lintResults,
-  );
-  const result = updateErrorAndWarningCounts(filteredLintResults);
-  await reportResults(result);
+  let results;
+	if(fullFiles) {
+		results = decorateLinterMessages(changedFilesLineMap, lintResults)
+	} else {
+		const filteredLintResults = filterLinterMessages(
+			changedFilesLineMap,
+			lintResults,
+		);
+		results = updateErrorAndWarningCounts(filteredLintResults);
+	}
+	await reportResults(results);
 };
 
 export { run };
