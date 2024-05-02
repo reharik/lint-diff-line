@@ -125,6 +125,9 @@ const run = async (commitRange, ext, files, fullFiles) => {
   );
   const lintResults = await applyLinter(changedFilesLineMap);
   let results;
+	console.log(`************lintResults************`);
+	console.log(JSON.stringify(lintResults, null, 4));
+	console.log(`********END lintResults************`);
 	if(fullFiles) {
 		results = decorateLinterMessages(changedFilesLineMap, lintResults)
 	} else {

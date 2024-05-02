@@ -12,7 +12,7 @@
     "lint": "eslint 'src/**/*.js'",
     "prepublish": "npm run build",
     "test": "npm run lint",
-    "start": "npm run build && node dist/lint-diff-line.js -r d88b101644d4d154745eb340a93dbdef6ca62fbf..HEAD -f 'src/testFiles/**' -F true "
+    "start": "npm run build && node dist/lint-diff-line.js -r 589f43fb7fc91f8025e45347d6471b0e160fb6ef..HEAD -f 'src/testFiles/**' -F true "
   },
   "repository": {
     "type": "git",
