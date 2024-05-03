@@ -98,9 +98,9 @@ const applyLinter = async changedFiles =>
   await linter.lintFiles(changedFiles.map(x => x.filePath));
 
 const reportResults = async (results, fullFiles) => {
-  let formatter = await linter.loadFormatter('./src/lib/newLineCustomFormatter.js');
+  let formatter = await linter.loadFormatter('src/formatters/newLineCustomFormatter.js');
 	if(fullFiles) {
-		formatter = await linter.loadFormatter('./src/lib/fullFileCustomFormatter.js');
+		formatter = await linter.loadFormatter('src/formatters/fullFileCustomFormatter.js');
 	}
   let formatted = formatter.format(results);
   if (!formatted) {
