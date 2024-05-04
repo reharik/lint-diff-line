@@ -1,6 +1,6 @@
 {
   "name": "lint-diff-line",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": ":Run eslint only in the changed parts of the code",
   "source": "src/index.js",
   "main": "./dist/lint-diff-line.js",
@@ -12,9 +12,8 @@
     "lint": "eslint 'src/**/*.js'",
     "prepublish": "npm run build",
     "test": "npm run lint",
-    "start": "npm run build && node dist/lint-diff-line.js ",
-    "test:newLines": "npm run build && node dist/lint-diff-line.js -r HEAD~3..HEAD "
-
+    "test:fullFiles": "npm run build && node dist/lint-diff-line.js -r 51de70ce67623017fbf5346c391628b8b211b014..53da502f61d442b283f775a8573dc7b336f85081  -f 'src/testFiles/**' -F true ",
+    "test:newLines": "npm run build && node dist/lint-diff-line.js -r 51de70ce67623017fbf5346c391628b8b211b014..53da502f61d442b283f775a8573dc7b336f85081  -f 'src/testFiles/**'"
   },
   "repository": {
     "type": "git",
@@ -26,7 +25,7 @@
     "diff",
     "git"
   ],
-  "author": "Guilherme Coelho <guilhermervcoelho@gmail.com>",
+  "author": "Raif Harik <harik.raif@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/reharik/lint-diff-line/issues"
@@ -43,6 +42,7 @@
   },
   "dependencies": {
     "commander": "2.15.1",
+    "eslint-formatter-lint-diff-line-formatter": "^1.0.0",
     "execa": "0.10.0",
     "meow": "^5.0.0",
     "minimatch": "^3.1.2",
