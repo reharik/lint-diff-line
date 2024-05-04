@@ -1,4 +1,5 @@
-import {
+const ramda = require('ramda');
+const {
   addIndex,
   complement,
   curry,
@@ -11,18 +12,18 @@ import {
   reduce,
   slice,
   startsWith,
-} from 'ramda'
+} = ramda
 
-export const mapIndexed = addIndex(map)
+const mapIndexed = addIndex(map)
 
-export const reduceIndexed = addIndex(reduce)
+const reduceIndexed = addIndex(reduce)
 
-export const firstItemStartsWith = curry((prefix, list) =>
+const firstItemStartsWith = curry((prefix, list) =>
   startsWith(prefix, list[0]))
 
-export const doesNotStartWith = complement(startsWith)
+const doesNotStartWith = complement(startsWith)
 
-export const splitEveryTime = curry((predicate, list) => {
+const splitEveryTime = curry((predicate, list) => {
   const splitIndexes = pipe(
     reduceIndexed((acc, item, index) => {
       if (predicate(item)) {
@@ -46,3 +47,11 @@ export const splitEveryTime = curry((predicate, list) => {
     filter(complement(isEmpty))
   )(splitIndexes)
 })
+
+module.exports = {
+	mapIndexed,
+	reduceIndexed,
+	firstItemStartsWith,
+	doesNotStartWith,
+	splitEveryTime,
+}

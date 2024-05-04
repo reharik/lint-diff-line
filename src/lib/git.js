@@ -1,4 +1,12 @@
-import {
+const ramda = require('ramda');
+const functional = require('./functional');
+const {
+  doesNotStartWith,
+  firstItemStartsWith,
+  splitEveryTime,
+} = functional;
+
+const {
   filter,
   flatten,
   map,
@@ -6,14 +14,9 @@ import {
   split,
   startsWith,
   uniq,
-} from 'ramda'
-import {
-  doesNotStartWith,
-  firstItemStartsWith,
-  splitEveryTime,
-} from './functional'
+} = ramda;
 
-export const getChangedLinesFromHunk = (hunk) => {
+const getChangedLinesFromHunk = (hunk) => {
   let lineNumber = 0
 
   return hunk.reduce((changedLines, line) => {
@@ -34,13 +37,13 @@ export const getChangedLinesFromHunk = (hunk) => {
   }, [])
 }
 
-export const getHunksFromDiff = pipe(
+const getHunksFromDiff = pipe(
   split('\n'),
   splitEveryTime(startsWith('@@')),
   filter(firstItemStartsWith('@@'))
 )
 
-export const getChangedLinesFromDiff = pipe(
+module.exports = getChangedLinesFromDiff = pipe(
   getHunksFromDiff,
   map(getChangedLinesFromHunk),
   flatten,

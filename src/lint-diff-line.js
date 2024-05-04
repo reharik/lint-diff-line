@@ -1,12 +1,11 @@
-import util from 'util';
-import { exec as execCB } from 'child_process';
-import path from 'path';
-import { ESLint } from 'eslint';
+const util = require('util');
+const execCB = require('child_process');
+const path = require("path");
+const ESLint = require("eslint").ESLint;
+const getChangedLinesFromDiff = require('./lib/git');
+const minimatch = require('minimatch')
 
-import { getChangedLinesFromDiff } from './lib/git';
-import minimatch from 'minimatch';
-
-const exec = util.promisify(execCB);
+const exec = util.promisify(execCB.exec);
 const linter = new ESLint();
 
 const getChangedFiles = async (range, ext) => {
@@ -61,6 +60,7 @@ const filterLinterMessages = (changedFileLineMap, linterOutput) =>
       if (!outputForFile) {
         return undefined;
       }
+			outputForFile.version = "lineOnly";
       outputForFile.messages = outputForFile.messages.filter(m =>
         x.changedLines.includes(m.line),
       );
@@ -76,6 +76,7 @@ const filterLinterMessages = (changedFileLineMap, linterOutput) =>
       if (!outputForFile) {
         return undefined;
       }
+			outputForFile.version = "fullFile";
       outputForFile.messages = outputForFile.messages.map(m =>
         x.changedLines.includes(m.line) ? {...m, newLineError: true} : m,
       );
@@ -97,11 +98,8 @@ const updateErrorAndWarningCounts = filteredLintResults =>
 const applyLinter = async changedFiles =>
   await linter.lintFiles(changedFiles.map(x => x.filePath));
 
-const reportResults = async (results, fullFiles) => {
-  let formatter = await linter.loadFormatter('src/formatters/newLineCustomFormatter.js');
-	if(fullFiles) {
-		formatter = await linter.loadFormatter('src/formatters/fullFileCustomFormatter.js');
-	}
+const reportResults = async (results) => {
+  let formatter = await linter.loadFormatter('lint-diff-line-formatter');
   let formatted = formatter.format(results);
   if (!formatted) {
     formatted =
@@ -137,7 +135,7 @@ const run = async (commitRange, ext, files, fullFiles) => {
 		);
 		results = updateErrorAndWarningCounts(filteredLintResults);
 	}
-	await reportResults(results,fullFiles);
+	await reportResults(results);
 };
 
 export { run };

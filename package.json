@@ -8,7 +8,7 @@
     "lint-diff-line": "dist/lint-diff-line.js"
   },
   "scripts": {
-    "build": "parcel build",
+    "build": "rm -rf ./dist && parcel build",
     "lint": "eslint 'src/**/*.js'",
     "prepublish": "npm run build",
     "test": "npm run lint",
@@ -42,17 +42,14 @@
   },
   "dependencies": {
     "commander": "2.15.1",
+    "eslint-formatter-lint-diff-line-formatter": "^0.0.9",
+    "eslint-formatter-pretty": "^6.0.1",
     "execa": "0.10.0",
     "meow": "^5.0.0",
     "minimatch": "^3.1.2",
-    "parcel-reporter-static-files-copy": "^1.5.3",
     "ramda": "0.25.0"
   },
   "peerDependencies": {
     "eslint": "^8.39.0"
-  },
-	"staticFiles": {
-    "staticPath": "src/formatters",
-		"distDir":"dist/src/formatters"
   }
 }

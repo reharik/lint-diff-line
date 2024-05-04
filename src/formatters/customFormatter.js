@@ -95,12 +95,16 @@ const buildResult = results => {
   };
 };
 
-const getOutput = (results, fullFiles) => {
+const determineFormatterVersion = results =>
+  results.some(x => x.version === 'lineOnly') ? 'lineOnly' : 'fullFile';
+
+const getOutput = results => {
   let newLineResults = [];
   let existingResults = [];
-	let newLineResultOutput
-	if (!fullFiles) {
-		newLineResultOutput = buildResult(results);
+  let newLineResultOutput;
+  const formatterVersion = determineFormatterVersion(results);
+  if (formatterVersion === 'lineOnly') {
+    newLineResultOutput = buildResult(results);
   } else {
     results.forEach(x => {
       const newLineMessages = x.messages.filter(x => x.newLineError);
@@ -112,43 +116,47 @@ const getOutput = (results, fullFiles) => {
         existingResults.push(x);
       }
     });
-		newLineResultOutput = buildResult(newLineResults);
-
-	}
+    newLineResultOutput = buildResult(newLineResults);
+  }
 
   const existingResultOutput = buildResult(existingResults);
-  const existing =
-    existingResultOutput.output
-      ? `\n --------------------------------- \n Existing Lint Errors \n ---------------------------------\n${existingResultOutput.output} \n\n`
-      : '';
-  const newLine =
-    newLineResultOutput.output
-      ? `\n --------------------------------- \n NEW Lint Errors \n ---------------------------------\n${newLineResultOutput.output}\n\n`
-      : '';
+  let finalOutput;
+  const existing = existingResultOutput.output
+    ? `\n --------------------------------- \n Existing Lint Errors \n ---------------------------------\n${existingResultOutput.output} \n\n`
+    : '';
+  const newLine = newLineResultOutput.output
+    ? `\n --------------------------------- \n NEW Lint Errors \n ---------------------------------\n${newLineResultOutput.output}\n\n`
+    : '';
+
+  if (formatterVersion === 'fullFile') {
+    finalOutput = `${existing}${newLine}`;
+  } else {
+    finalOutput = `${newLineResultOutput.output}\n\n`;
+  }
 
   return {
     ...newLineResultOutput,
     summaryColor:
-		existingResultOutput.summaryColor === 'red' ||
+      existingResultOutput.summaryColor === 'red' ||
       newLineResultOutput.summaryColor === 'red'
         ? 'red'
         : 'yellow',
-    output: `${existing}${newLine}`,
+    output: finalOutput,
   };
 };
 
-module.exports = function (results, fullFiles) {
-  const result = getOutput(results, fullFiles);
-	const {
-		errorCount,
-		warningCount,
-		fixableErrorCount,
-		fixableWarningCount,
-		summaryColor,
-	} =result
+module.exports = function (results) {
+  const result = getOutput(results);
+  const {
+    errorCount,
+    warningCount,
+    fixableErrorCount,
+    fixableWarningCount,
+    summaryColor,
+  } = result;
 
-	let output =result.output ||''
-	const total = errorCount + warningCount;
+  let output = result.output || '';
+  const total = errorCount + warningCount;
 
   if (total > 0) {
     output += chalk[summaryColor].bold(
