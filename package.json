@@ -10,7 +10,7 @@
   "scripts": {
     "build": "rm -rf ./dist && parcel build",
     "lint": "eslint 'src/**/*.js'",
-    "prepublish": "npm run build",
+		"deploy": "npm version patch && npm run build && npm publish",
     "test": "npm run lint",
     "test:fullFiles": "npm run build && node dist/lint-diff-line.js -r 51de70ce67623017fbf5346c391628b8b211b014..53da502f61d442b283f775a8573dc7b336f85081  -f 'src/testFiles/**' -F true ",
     "test:newLines": "npm run build && node dist/lint-diff-line.js -r 51de70ce67623017fbf5346c391628b8b211b014..53da502f61d442b283f775a8573dc7b336f85081  -f 'src/testFiles/**'"
@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "commander": "2.15.1",
-    "eslint-formatter-lint-diff-line-formatter": "^1.0.0",
+    "eslint-formatter-lint-diff-line-formatter": "^1.0.2",
     "execa": "0.10.0",
     "meow": "^5.0.0",
     "minimatch": "^3.1.2",
