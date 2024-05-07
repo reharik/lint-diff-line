@@ -10,7 +10,7 @@ const linter = new ESLint();
 
 const getChangedFiles = async (range, ext) => {
   const file = await exec(
-    `git log --no-merges --pretty=format: --name-only --diff-filter=ACM ${range}  | sort | uniq`,
+		`git diff --pretty=format: --name-only --diff-filter=ACM ${range} | sort | uniq`,
   );
   const files = (file.stdout || '').split('\n').filter(Boolean);
   return files.filter(x => ext.some(y => x.endsWith(y)));
