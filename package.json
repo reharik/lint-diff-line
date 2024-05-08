@@ -41,8 +41,7 @@
     "parcel": "^2.8.3"
   },
   "dependencies": {
-    "commander": "2.15.1",
-    "eslint-formatter-lint-diff-line-formatter": "^1.0.3",
+    "eslint-formatter-lint-diff-line-formatter": "^1.0.4",
     "execa": "0.10.0",
     "meow": "^5.0.0",
     "minimatch": "^3.1.2",
