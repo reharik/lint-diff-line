@@ -1,6 +1,6 @@
 {
   "name": "lint-diff-line",
-  "version": "1.2.10",
+  "version": "1.2.16",
   "description": ":Run eslint only in the changed parts of the code",
   "source": "src/index.js",
   "main": "./dist/lint-diff-line.js",
@@ -8,9 +8,9 @@
     "lint-diff-line": "dist/lint-diff-line.js"
   },
   "scripts": {
-    "build": "rm -rf ./dist && parcel build",
+    "build": "rm -rf ./dist ./parcel-cache && parcel build",
     "lint": "eslint 'src/**/*.js'",
-    "deploy": "npm version patch && npm run build && npm publish",
+    "deploy": "npm run build && npm version patch && npm publish",
     "test": "npm run lint",
     "test:fullFiles": "npm run build && node dist/lint-diff-line.js -r 51de70ce67623017fbf5346c391628b8b211b014..53da502f61d442b283f775a8573dc7b336f85081  -f 'src/testFiles/**' -F true ",
     "test:newLines": "npm run build && node dist/lint-diff-line.js -r 51de70ce67623017fbf5346c391628b8b211b014..53da502f61d442b283f775a8573dc7b336f85081  -f 'src/testFiles/**'"
@@ -41,7 +41,7 @@
     "parcel": "^2.8.3"
   },
   "dependencies": {
-    "eslint-formatter-lint-diff-line-formatter": "^1.0.4",
+    "eslint-formatter-lint-diff-line-formatter": "^1.0.5",
     "execa": "0.10.0",
     "meow": "^5.0.0",
     "minimatch": "^3.1.2",
